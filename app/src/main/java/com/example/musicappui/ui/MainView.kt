@@ -2,6 +2,7 @@ package com.example.musicappui.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,9 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.musicappui.MainViewModel
 import com.example.musicappui.Screen
 import com.example.musicappui.screensInDrawer
 import kotlinx.coroutines.CoroutineScope
@@ -39,12 +45,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainView() {
 
+    val mainViewModel: MainViewModel = viewModel()
+    val currentScreen = remember { mainViewModel.currentScreen.value }
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val scope: CoroutineScope = rememberCoroutineScope()
-    val controller : NavController= rememberNavController()
+    val controller: NavController = rememberNavController()
     val navBackEntry by controller.currentBackStackEntryAsState()
     val currentRoute = navBackEntry?.destination?.route
-    val title = remember { mutableStateOf("") } // TODO change screen title
+    val title = remember { mutableStateOf(currentScreen.title) } // TODO change screen title
+
 
     Scaffold(
         topBar = {
@@ -64,24 +73,23 @@ fun MainView() {
         scaffoldState = scaffoldState,
         drawerContent = {
             LazyColumn(modifier = Modifier.padding(16.dp)) {
-                items(screensInDrawer) {
-                    itemScreen ->
-                        DrawerItem(selected = currentRoute == itemScreen.dRoute, item = itemScreen) {
-                            scope.launch {
-                                scaffoldState.drawerState.close()
-                            }
-                            if (itemScreen.dRoute == "add-account") {
-                                // open add account dialog
-                            } else {
-                                controller.navigate(itemScreen.dRoute)
-                                title.value = itemScreen.dTitle
-                            }
+                items(screensInDrawer) { itemScreen ->
+                    DrawerItem(selected = currentRoute == itemScreen.dRoute, item = itemScreen) {
+                        scope.launch {
+                            scaffoldState.drawerState.close()
                         }
+                        if (itemScreen.dRoute == "add-account") {
+                            // open add account dialog
+                        } else {
+                            controller.navigate(itemScreen.dRoute)
+                            title.value = itemScreen.dTitle
+                        }
+                    }
                 }
             }
         }
     ) {
-        Text(text = "text", modifier = Modifier.padding(it))
+        Navigation(navController = controller, viewModel = mainViewModel, pd = it)
     }
 }
 
@@ -108,6 +116,23 @@ fun DrawerItem(
             )
         )
         Text(text = item.dTitle, style = MaterialTheme.typography.titleMedium)
+
+    }
+}
+
+@Composable
+fun Navigation(navController: NavController, viewModel: MainViewModel, pd: PaddingValues) {
+    NavHost(
+        navController = navController as NavHostController,
+        startDestination = Screen.DrawerScreen.AddAccount.route,
+        modifier = Modifier.padding(pd)
+    ) {
+        composable(Screen.DrawerScreen.AddAccount.route) {
+
+        }
+        composable(Screen.DrawerScreen.Subscription.route) {
+
+        }
 
     }
 }
