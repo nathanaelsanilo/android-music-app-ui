@@ -53,7 +53,7 @@ fun MainView() {
     val navBackEntry by controller.currentBackStackEntryAsState()
     val currentRoute = navBackEntry?.destination?.route
     val title = remember { mutableStateOf(currentScreen.title) } // TODO change screen title
-
+    val dialogOpen = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -79,7 +79,7 @@ fun MainView() {
                             scaffoldState.drawerState.close()
                         }
                         if (itemScreen.dRoute == "add-account") {
-                            // open add account dialog
+                            dialogOpen.value = true
                         } else {
                             controller.navigate(itemScreen.dRoute)
                             title.value = itemScreen.dTitle
@@ -90,6 +90,7 @@ fun MainView() {
         }
     ) {
         Navigation(navController = controller, viewModel = mainViewModel, pd = it)
+        AccountDialog(open = dialogOpen)
     }
 }
 
