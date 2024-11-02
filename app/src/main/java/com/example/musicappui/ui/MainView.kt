@@ -61,8 +61,9 @@ fun MainView() {
 
     val bottomBar: @Composable () -> Unit = {
         if (currentScreen is Screen.DrawerScreen || currentScreen == Screen.BottomScreen.Home) {
-            BottomNavigation(modifier = Modifier.wrapContentSize(), backgroundColor = Color.LightGray) {
+            BottomNavigation(modifier = Modifier.wrapContentSize()) {
                 screensInBottom.forEach { item ->
+                    val activeColor = if (currentRoute == item.bRoute) Color.White else Color.LightGray
                     BottomNavigationItem(
                         selected = currentRoute == item.bRoute,
                         onClick = {
@@ -70,11 +71,12 @@ fun MainView() {
                         },
                         icon = {
                             Icon(
+                                tint = activeColor,
                                 painter = painterResource(id = item.icon),
                                 contentDescription = item.bTitle
                             )
                         },
-                        label = { Text(text = item.bTitle) },
+                        label = { Text(text = item.bTitle, color = activeColor) },
                         selectedContentColor = Color.White,
                         unselectedContentColor = Color.LightGray
                     )
