@@ -169,7 +169,7 @@ fun Navigation(navController: NavController, viewModel: MainViewModel, pd: Paddi
         }
 
         composable(Screen.BottomScreen.Browse.route) {
-            SubscriptionView()
+            BrowseView()
         }
 
         composable(Screen.BottomScreen.Library.route) {
