@@ -23,8 +23,10 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.primarySurface
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
@@ -90,6 +92,7 @@ fun MainView() {
                     BottomNavigationItem(
                         selected = currentRoute == item.bRoute,
                         onClick = {
+                            title.value = item.bTitle
                             controller.navigate(item.bRoute)
                         },
                         icon = {
@@ -112,23 +115,47 @@ fun MainView() {
         sheetState = modalSheetState,
         sheetShape = RoundedCornerShape(topStart = rounded, topEnd = rounded),
         sheetContent = {
-            MoreBottomSheet(modifier)
+            MoreBottomSheet(modifier) { type ->
+                when (type) {
+                    "account" -> controller.navigate(Screen.DrawerScreen.Account.route)
+                    "subscription" -> controller.navigate(Screen.DrawerScreen.Subscription.route)
+                }
+                scope.launch {
+                    modalSheetState.hide()
+                }
+            }
         }) {
         Scaffold(
             bottomBar = bottomBar,
             topBar = {
-                TopAppBar(title = { Text(title.value) }, navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            scaffoldState.drawerState.open()
+                TopAppBar(
+                    title = { Text(title.value) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.open()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = "account menu"
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "account menu"
-                        )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (modalSheetState.isVisible) {
+                                    modalSheetState.hide()
+                                } else {
+                                    modalSheetState.show()
+                                }
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "more")
+                        }
                     }
-                })
+                )
             },
             scaffoldState = scaffoldState,
             drawerContent = {
@@ -159,7 +186,7 @@ fun MainView() {
 }
 
 @Composable
-fun MoreBottomSheet(modifier: Modifier) {
+fun MoreBottomSheet(modifier: Modifier, onClick: (type: String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,13 +199,45 @@ fun MoreBottomSheet(modifier: Modifier) {
             modifier = modifier.padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(modifier = modifier.padding(16.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_settings_24),
-                    contentDescription = "Settings",
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(text = "Settings", fontSize = 20.sp, color = Color.White)
+            Row(modifier = modifier.padding(8.dp)) {
+                TextButton(
+                    onClick = {
+                        onClick("account")
+                        // controller.navigate(Screen.DrawerScreen.Account.route)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Account",
+                        tint = Color.White,
+                    )
+                    Text(
+                        text = "Account",
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+            Row(modifier = modifier.padding(8.dp)) {
+                TextButton(
+                    onClick = {
+                              onClick("subscription")
+                        // controller.navigate(Screen.DrawerScreen.Subscription.route)
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_card_membership_24),
+                        contentDescription = "Membership",
+                        tint = Color.White
+                    )
+                    Text(
+                        text = "Membership",
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
             }
         }
     }
@@ -215,7 +274,7 @@ fun DrawerItem(
 fun Navigation(navController: NavController, viewModel: MainViewModel, pd: PaddingValues) {
     NavHost(
         navController = navController as NavHostController,
-        startDestination = Screen.DrawerScreen.Account.route,
+        startDestination = Screen.BottomScreen.Home.route,
         modifier = Modifier.padding(pd)
     ) {
         composable(Screen.DrawerScreen.Account.route) {
