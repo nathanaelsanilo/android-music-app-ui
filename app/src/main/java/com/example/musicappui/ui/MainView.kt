@@ -173,7 +173,7 @@ fun Navigation(navController: NavController, viewModel: MainViewModel, pd: Paddi
         }
 
         composable(Screen.BottomScreen.Library.route) {
-            SubscriptionView()
+            LibraryView()
         }
 
     }
