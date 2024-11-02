@@ -165,7 +165,7 @@ fun Navigation(navController: NavController, viewModel: MainViewModel, pd: Paddi
         }
 
         composable(Screen.BottomScreen.Home.route) {
-            AccountView()
+            HomeView()
         }
 
         composable(Screen.BottomScreen.Browse.route) {
